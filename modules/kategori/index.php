@@ -11,16 +11,33 @@ if ($_SESSION['role'] !== 'admin') {
 }
 
 // Generate CSRF token kalau belum ada di session
-if (empty($_SESSION['csrf_token'])) {
+if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || $_SESSION['csrf_token'] === '') {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 $error = "";
 $sukses = "";
 
+$pesan_hapus = [
+    'sukses' => ['type' => 'sukses', 'text' => 'Kategori berhasil dihapus. Buku yang menggunakannya tetap ada tanpa kategori.'],
+    'tidak_valid' => ['type' => 'error', 'text' => 'Kategori tidak ditemukan atau ID tidak valid.'],
+    'terkait' => ['type' => 'error', 'text' => 'Kategori tidak dapat dihapus karena masih digunakan.'],
+    'gagal' => ['type' => 'error', 'text' => 'Kategori gagal dihapus. Silakan coba kembali.']
+];
+$hasil_hapus = $_GET['hapus'] ?? '';
+if (is_string($hasil_hapus) && isset($pesan_hapus[$hasil_hapus])) {
+    if ($pesan_hapus[$hasil_hapus]['type'] === 'sukses') {
+        $sukses = $pesan_hapus[$hasil_hapus]['text'];
+    } else {
+        $error = $pesan_hapus[$hasil_hapus]['text'];
+    }
+}
+
 // Proses tambah kategori baru
 if (isset($_POST['tambah'])) {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+    $csrf_token_session = $_SESSION['csrf_token'] ?? null;
+    $csrf_token_request = $_POST['csrf_token'] ?? null;
+    if (!is_string($csrf_token_session) || $csrf_token_session === '' || !is_string($csrf_token_request) || $csrf_token_request === '' || !hash_equals($csrf_token_session, $csrf_token_request)) {
         $error = "Token keamanan tidak valid.";
     } else {
         $nama_kategori = trim($_POST['nama_kategori']);

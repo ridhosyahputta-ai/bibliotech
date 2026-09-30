@@ -10,7 +10,7 @@ if ($_SESSION['role'] !== 'admin') {
     die("Akses ditolak.");
 }
 
-if (empty($_SESSION['csrf_token'])) {
+if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || $_SESSION['csrf_token'] === '') {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -19,7 +19,9 @@ $sukses = "";
 
 // Proses tambah user baru
 if (isset($_POST['tambah'])) {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+    $csrf_token_session = $_SESSION['csrf_token'] ?? null;
+    $csrf_token_request = $_POST['csrf_token'] ?? null;
+    if (!is_string($csrf_token_session) || $csrf_token_session === '' || !is_string($csrf_token_request) || $csrf_token_request === '' || !hash_equals($csrf_token_session, $csrf_token_request)) {
         $error = "Token keamanan tidak valid.";
     } else {
         $username = trim($_POST['username']);
@@ -73,7 +75,7 @@ $result = mysqli_query($koneksi, "SELECT id_user, username, nama, role, status F
         <label>Username</label><br>
         <input type="text" name="username" required><br><br>
         <label>Password</label><br>
-        <input type="text" name="password" required><br><br>
+        <input type="password" name="password" required><br><br>
         <label>Nama</label><br>
         <input type="text" name="nama" required><br><br>
         <label>Role</label><br>

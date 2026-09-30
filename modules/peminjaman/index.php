@@ -10,25 +10,47 @@ if (!in_array($_SESSION['role'], ['admin', 'petugas'])) {
     die("Akses ditolak.");
 }
 
-if (empty($_SESSION['csrf_token'])) {
+if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || $_SESSION['csrf_token'] === '') {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 $error = "";
 $sukses = "";
 
+// Hanya tampilkan pesan tetap yang dikenal, bukan teks dari parameter URL.
+$pesan_pengembalian = [
+    'sukses' => 'Buku berhasil dikembalikan.',
+    'tidak_valid' => 'Data peminjaman tidak valid atau tidak ditemukan.',
+    'sudah_dikembalikan' => 'Buku ini sudah dikembalikan sebelumnya.',
+    'gagal' => 'Pengembalian buku gagal diproses. Silakan periksa riwayat peminjaman dan coba kembali.'
+];
+$hasil_pengembalian = $_GET['pengembalian'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && is_string($hasil_pengembalian) && isset($pesan_pengembalian[$hasil_pengembalian])) {
+    if ($hasil_pengembalian === 'sukses') {
+        $sukses = $pesan_pengembalian[$hasil_pengembalian];
+    } else {
+        $error = $pesan_pengembalian[$hasil_pengembalian];
+    }
+}
+
 // Proses tambah peminjaman baru
 if (isset($_POST['pinjam'])) {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+    $csrf_token_session = $_SESSION['csrf_token'] ?? null;
+    $csrf_token_request = $_POST['csrf_token'] ?? null;
+    if (!is_string($csrf_token_session) || $csrf_token_session === '' || !is_string($csrf_token_request) || $csrf_token_request === '' || !hash_equals($csrf_token_session, $csrf_token_request)) {
         $error = "Token keamanan tidak valid.";
     } else {
         $eksemplar_id = (int) $_POST['eksemplar_id'];
         $anggota_id   = (int) $_POST['anggota_id'];
-        $lama_pinjam  = (int) $_POST['lama_pinjam'];
+        $lama_pinjam_input = $_POST['lama_pinjam'] ?? null;
+        $lama_pinjam_valid = is_string($lama_pinjam_input) && preg_match('/\A[0-9]+\z/', $lama_pinjam_input) === 1;
+        $lama_pinjam = $lama_pinjam_valid ? (int) $lama_pinjam_input : 0;
         $petugas_id   = $_SESSION['id_user'];
 
-        if ($eksemplar_id <= 0 || $anggota_id <= 0 || $lama_pinjam <= 0) {
+        if ($eksemplar_id <= 0 || $anggota_id <= 0) {
             $error = "Semua field wajib diisi dengan benar.";
+        } elseif (!$lama_pinjam_valid || $lama_pinjam < 1 || $lama_pinjam > 30) {
+            $error = "Lama pinjam harus berupa bilangan bulat antara 1 dan 30 hari.";
         } else {
             // Mulai transaction
             mysqli_begin_transaction($koneksi);
@@ -88,8 +110,13 @@ $eksemplar_result = mysqli_query($koneksi, "
 
 // Ambil semua riwayat peminjaman
 $peminjaman_result = mysqli_query($koneksi, "
-    SELECT peminjaman.id_peminjaman, peminjaman.tanggal_pinjam, peminjaman.tanggal_jatuh_tempo, 
-           peminjaman.tanggal_dikembalikan, peminjaman.status,
+    SELECT peminjaman.id_peminjaman, peminjaman.tanggal_pinjam, peminjaman.tanggal_jatuh_tempo,
+           peminjaman.tanggal_dikembalikan,
+           CASE
+               WHEN peminjaman.tanggal_dikembalikan IS NOT NULL THEN 'Dikembalikan'
+               WHEN peminjaman.tanggal_jatuh_tempo < CURDATE() THEN 'Terlambat'
+               ELSE 'Dipinjam'
+           END AS status_tampilan,
            buku.judul, eksemplar.kode_eksemplar, users.nama AS nama_anggota
     FROM peminjaman
     JOIN eksemplar ON peminjaman.eksemplar_id = eksemplar.id_eksemplar
@@ -130,7 +157,7 @@ $peminjaman_result = mysqli_query($koneksi, "
             <?php endwhile; ?>
         </select><br><br>
         <label>Lama Pinjam (hari)</label><br>
-        <input type="number" name="lama_pinjam" value="7" required><br><br>
+        <input type="number" name="lama_pinjam" value="7" min="1" max="30" step="1" required><br><br>
         <button type="submit" name="pinjam">Pinjamkan</button>
     </form>
 
@@ -154,9 +181,9 @@ $peminjaman_result = mysqli_query($koneksi, "
             <td><?= htmlspecialchars($row['tanggal_pinjam']) ?></td>
             <td><?= htmlspecialchars($row['tanggal_jatuh_tempo']) ?></td>
             <td><?= htmlspecialchars($row['tanggal_dikembalikan'] ?? '-') ?></td>
-            <td><?= htmlspecialchars($row['status']) ?></td>
+            <td><?= htmlspecialchars($row['status_tampilan']) ?></td>
             <td>
-                <?php if ($row['status'] === 'dipinjam'): ?>
+                <?php if ($row['tanggal_dikembalikan'] === null): ?>
                     <form method="POST" action="kembalikan.php" style="display:inline;">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="id_peminjaman" value="<?= $row['id_peminjaman'] ?>">

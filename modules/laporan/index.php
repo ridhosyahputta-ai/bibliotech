@@ -40,7 +40,7 @@ $terlambat = mysqli_query($koneksi, "
     JOIN eksemplar ON peminjaman.eksemplar_id = eksemplar.id_eksemplar
     JOIN buku ON eksemplar.buku_id = buku.id_buku
     JOIN users ON peminjaman.anggota_id = users.id_user
-    WHERE peminjaman.status = 'dipinjam' AND peminjaman.tanggal_jatuh_tempo < CURDATE()
+    WHERE peminjaman.tanggal_dikembalikan IS NULL AND peminjaman.tanggal_jatuh_tempo < CURDATE()
     ORDER BY hari_terlambat DESC
 ");
 ?>

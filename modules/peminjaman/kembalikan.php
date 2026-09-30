@@ -15,26 +15,41 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+$csrf_token_session = $_SESSION['csrf_token'] ?? null;
+$csrf_token_request = $_POST['csrf_token'] ?? null;
+if (!is_string($csrf_token_session) || $csrf_token_session === '' || !is_string($csrf_token_request) || $csrf_token_request === '' || !hash_equals($csrf_token_session, $csrf_token_request)) {
     die("Token keamanan tidak valid.");
 }
 
-$id_peminjaman = (int) $_POST['id_peminjaman'];
+$id_peminjaman = filter_var($_POST['id_peminjaman'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 
-mysqli_begin_transaction($koneksi);
+if (!$id_peminjaman) {
+    header("Location: index.php?pengembalian=tidak_valid");
+    exit();
+}
+
+// Pastikan kegagalan query masuk ke penanganan rollback, bukan dianggap sukses.
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+$hasil_pengembalian = 'gagal';
+$transaksi_aktif = false;
 
 try {
-    // Kunci baris peminjaman ini, ambil eksemplar_id-nya, cek status masih aktif
-    $stmt = mysqli_prepare($koneksi, "SELECT eksemplar_id, status FROM peminjaman WHERE id_peminjaman = ? FOR UPDATE");
+    mysqli_begin_transaction($koneksi);
+    $transaksi_aktif = true;
+
+    // Kunci baris peminjaman ini dan cek apakah tanggal pengembaliannya sudah terisi.
+    $stmt = mysqli_prepare($koneksi, "SELECT eksemplar_id, tanggal_dikembalikan FROM peminjaman WHERE id_peminjaman = ? FOR UPDATE");
     mysqli_stmt_bind_param($stmt, "i", $id_peminjaman);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
     $peminjaman = mysqli_fetch_assoc($result);
 
     if (!$peminjaman) {
+        $hasil_pengembalian = 'tidak_valid';
         throw new Exception("Data peminjaman tidak ditemukan.");
     }
-    if ($peminjaman['status'] === 'dikembalikan') {
+    if ($peminjaman['tanggal_dikembalikan'] !== null) {
+        $hasil_pengembalian = 'sudah_dikembalikan';
         throw new Exception("Buku ini sudah dikembalikan sebelumnya.");
     }
 
@@ -52,11 +67,19 @@ try {
     mysqli_stmt_execute($stmt);
 
     mysqli_commit($koneksi);
+    $transaksi_aktif = false;
+    $hasil_pengembalian = 'sukses';
 
-} catch (Exception $e) {
-    mysqli_rollback($koneksi);
+} catch (Throwable $e) {
+    if ($transaksi_aktif) {
+        try {
+            mysqli_rollback($koneksi);
+        } catch (Throwable $rollback_error) {
+            $hasil_pengembalian = 'gagal';
+        }
+    }
 }
 
-header("Location: index.php");
+header("Location: index.php?pengembalian=" . $hasil_pengembalian);
 exit();
 ?>

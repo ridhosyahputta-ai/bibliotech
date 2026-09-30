@@ -10,39 +10,58 @@ if (!isset($_SESSION['id_user'])) {
 $total_judul = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM buku"))['jumlah'];
 $total_eksemplar = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM eksemplar"))['jumlah'];
 $eksemplar_tersedia = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM eksemplar WHERE status = 'tersedia'"))['jumlah'];
-$sedang_dipinjam = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM peminjaman WHERE status = 'dipinjam'"))['jumlah'];
+$sedang_dipinjam = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM peminjaman WHERE tanggal_dikembalikan IS NULL"))['jumlah'];
 $jumlah_anggota = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM users WHERE role = 'anggota' AND status = 'aktif'"))['jumlah'];
-$terlambat = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM peminjaman WHERE status = 'dipinjam' AND tanggal_jatuh_tempo < CURDATE()"))['jumlah'];
+$terlambat = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM peminjaman WHERE tanggal_dikembalikan IS NULL AND tanggal_jatuh_tempo < CURDATE()"))['jumlah'];
 ?>
-<!DOCTYPE html>
-<html>
-<head><title>Dashboard - Bibliotech</title></head>
-<body>
-    <h2>Dashboard Bibliotech</h2>
-    <p>Selamat datang, <?= htmlspecialchars($_SESSION['nama']) ?>! (<?= htmlspecialchars($_SESSION['role']) ?>)</p>
-    <a href="logout.php">Logout</a>
+<?php
+$pageTitle = 'Dashboard';
+$activeMenu = 'dashboard';
+require __DIR__ . '/includes/header.php';
+?>
+<main class="main-content" id="main-content">
+    <header class="page-header">
+        <div class="page-heading">
+            <p class="eyebrow">Ringkasan perpustakaan</p>
+            <div class="page-title-row">
+                <h1>Dashboard</h1>
+                <span class="role-indicator"><?= htmlspecialchars(ucfirst($_SESSION['role'])) ?></span>
+            </div>
+            <p class="page-description">Selamat datang, <strong><?= htmlspecialchars($_SESSION['nama']) ?></strong>. Berikut ringkasan koleksi dan aktivitas perpustakaan.</p>
+        </div>
+    </header>
 
-    <h3>Statistik</h3>
-    <table border="1" cellpadding="8">
-        <tr><td>Total Judul Buku</td><td><?= $total_judul ?></td></tr>
-        <tr><td>Total Eksemplar</td><td><?= $total_eksemplar ?></td></tr>
-        <tr><td>Eksemplar Tersedia</td><td><?= $eksemplar_tersedia ?></td></tr>
-        <tr><td>Sedang Dipinjam</td><td><?= $sedang_dipinjam ?></td></tr>
-        <tr><td>Jumlah Anggota Aktif</td><td><?= $jumlah_anggota ?></td></tr>
-        <tr><td>Peminjaman Terlambat</td><td style="color:<?= $terlambat > 0 ? 'red' : 'inherit' ?>;"><?= $terlambat ?></td></tr>
-    </table>
-
-    <h3>Menu</h3>
-    <ul>
-        <?php if ($_SESSION['role'] === 'admin'): ?>
-        <li><a href="modules/kategori/index.php">Kelola Kategori</a></li>
-        <li><a href="modules/buku/index.php">Kelola Buku</a></li>
-        <li><a href="modules/user/index.php">Kelola User</a></li>
-        <?php endif; ?>
-        <?php if (in_array($_SESSION['role'], ['admin', 'petugas'])): ?>
-        <li><a href="modules/peminjaman/index.php">Peminjaman & Pengembalian</a></li>
-        <li><a href="modules/laporan/index.php">Laporan</a></li>
-        <?php endif; ?>
-    </ul>
-</body>
-</html>
+    <section class="statistics-section" aria-labelledby="statistics-title">
+        <div class="section-heading">
+            <h2 id="statistics-title">Statistik perpustakaan</h2>
+            <p>Ringkasan koleksi dan peminjaman saat ini.</p>
+        </div>
+        <div class="statistics-grid">
+            <article class="statistic">
+                <span class="statistic-label">Total Judul Buku</span>
+                <strong class="statistic-value"><?= $total_judul ?></strong>
+            </article>
+            <article class="statistic">
+                <span class="statistic-label">Total Eksemplar</span>
+                <strong class="statistic-value"><?= $total_eksemplar ?></strong>
+            </article>
+            <article class="statistic statistic--available">
+                <span class="statistic-label">Eksemplar Tersedia</span>
+                <strong class="statistic-value"><?= $eksemplar_tersedia ?></strong>
+            </article>
+            <article class="statistic statistic--borrowed">
+                <span class="statistic-label">Sedang Dipinjam</span>
+                <strong class="statistic-value"><?= $sedang_dipinjam ?></strong>
+            </article>
+            <article class="statistic">
+                <span class="statistic-label">Jumlah Anggota Aktif</span>
+                <strong class="statistic-value"><?= $jumlah_anggota ?></strong>
+            </article>
+            <article class="statistic statistic--overdue">
+                <span class="statistic-label">Peminjaman Terlambat</span>
+                <strong class="statistic-value"><?= $terlambat ?></strong>
+            </article>
+        </div>
+    </section>
+</main>
+<?php require __DIR__ . '/includes/footer.php'; ?>

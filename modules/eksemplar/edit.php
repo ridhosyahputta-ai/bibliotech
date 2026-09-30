@@ -18,7 +18,7 @@ if (!isset($_GET['id']) || !isset($_GET['buku_id'])) {
 $id_eksemplar = (int) $_GET['id'];
 $buku_id = (int) $_GET['buku_id'];
 
-if (empty($_SESSION['csrf_token'])) {
+if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || $_SESSION['csrf_token'] === '') {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -26,23 +26,58 @@ $error = "";
 
 // Proses update kalau form di-submit
 if (isset($_POST['update'])) {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+    $csrf_token_session = $_SESSION['csrf_token'] ?? null;
+    $csrf_token_request = $_POST['csrf_token'] ?? null;
+    if (!is_string($csrf_token_session) || $csrf_token_session === '' || !is_string($csrf_token_request) || $csrf_token_request === '' || !hash_equals($csrf_token_session, $csrf_token_request)) {
         $error = "Token keamanan tidak valid.";
     } else {
         $kode_eksemplar = trim($_POST['kode_eksemplar']);
-        $status = $_POST['status'];
+        $status = $_POST['status'] ?? '';
+        $pilihan_status = ['tersedia', 'dipinjam', 'rusak', 'hilang'];
 
-        $stmt = mysqli_prepare($koneksi, "UPDATE eksemplar SET kode_eksemplar = ?, status = ? WHERE id_eksemplar = ?");
-        mysqli_stmt_bind_param($stmt, "ssi", $kode_eksemplar, $status, $id_eksemplar);
-
-        if (mysqli_stmt_execute($stmt)) {
-            header("Location: index.php?buku_id=$buku_id");
-            exit();
+        if (!in_array($status, $pilihan_status, true)) {
+            $error = "Status eksemplar tidak valid.";
         } else {
-            if (mysqli_errno($koneksi) == 1062) {
-                $error = "Kode eksemplar '$kode_eksemplar' sudah dipakai.";
-            } else {
-                $error = "Gagal mengubah eksemplar.";
+            mysqli_begin_transaction($koneksi);
+
+            try {
+                // Kunci eksemplar agar pemeriksaan pinjaman aktif tidak berlomba dengan proses pinjam/kembali.
+                $stmt = mysqli_prepare($koneksi, "SELECT status FROM eksemplar WHERE id_eksemplar = ? FOR UPDATE");
+                mysqli_stmt_bind_param($stmt, "i", $id_eksemplar);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $eksemplar_terkunci = mysqli_fetch_assoc($result);
+
+                if (!$eksemplar_terkunci) {
+                    throw new Exception("Eksemplar tidak ditemukan.");
+                }
+
+                $stmt = mysqli_prepare($koneksi, "SELECT id_peminjaman FROM peminjaman WHERE eksemplar_id = ? AND tanggal_dikembalikan IS NULL LIMIT 1");
+                mysqli_stmt_bind_param($stmt, "i", $id_eksemplar);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $peminjaman_aktif = mysqli_fetch_assoc($result);
+
+                if ($peminjaman_aktif && $status !== $eksemplar_terkunci['status']) {
+                    throw new Exception("Status tidak dapat diubah karena eksemplar masih memiliki peminjaman aktif.");
+                }
+
+                $stmt = mysqli_prepare($koneksi, "UPDATE eksemplar SET kode_eksemplar = ?, status = ? WHERE id_eksemplar = ?");
+                mysqli_stmt_bind_param($stmt, "ssi", $kode_eksemplar, $status, $id_eksemplar);
+
+                if (!mysqli_stmt_execute($stmt)) {
+                    if (mysqli_errno($koneksi) == 1062) {
+                        throw new Exception("Kode eksemplar '$kode_eksemplar' sudah dipakai.");
+                    }
+                    throw new Exception("Gagal mengubah eksemplar.");
+                }
+
+                mysqli_commit($koneksi);
+                header("Location: index.php?buku_id=$buku_id");
+                exit();
+            } catch (Exception $e) {
+                mysqli_rollback($koneksi);
+                $error = $e->getMessage();
             }
         }
     }

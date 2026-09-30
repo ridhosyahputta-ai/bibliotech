@@ -17,7 +17,7 @@ if (!isset($_GET['id'])) {
 
 $id_kategori = (int) $_GET['id'];
 
-if (empty($_SESSION['csrf_token'])) {
+if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || $_SESSION['csrf_token'] === '') {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -25,7 +25,9 @@ $error = "";
 
 // Proses update kalau form di-submit
 if (isset($_POST['update'])) {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+    $csrf_token_session = $_SESSION['csrf_token'] ?? null;
+    $csrf_token_request = $_POST['csrf_token'] ?? null;
+    if (!is_string($csrf_token_session) || $csrf_token_session === '' || !is_string($csrf_token_request) || $csrf_token_request === '' || !hash_equals($csrf_token_session, $csrf_token_request)) {
         $error = "Token keamanan tidak valid.";
     } else {
         $nama_kategori = trim($_POST['nama_kategori']);
