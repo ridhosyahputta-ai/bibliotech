@@ -23,7 +23,6 @@ if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || $_
 
 $error = "";
 
-// Proses update kalau form di-submit
 if (isset($_POST['update'])) {
     $csrf_token_session = $_SESSION['csrf_token'] ?? null;
     $csrf_token_request = $_POST['csrf_token'] ?? null;
@@ -52,7 +51,6 @@ if (isset($_POST['update'])) {
     }
 }
 
-// Ambil data kategori yang mau diedit (buat ditampilkan di form)
 $stmt = mysqli_prepare($koneksi, "SELECT nama_kategori FROM kategori WHERE id_kategori = ?");
 mysqli_stmt_bind_param($stmt, "i", $id_kategori);
 mysqli_stmt_execute($stmt);
@@ -64,21 +62,46 @@ if (!$data) {
     exit();
 }
 ?>
-<!DOCTYPE html>
-<html>
-<head><title>Edit Kategori - Bibliotech</title></head>
-<body>
-    <a href="index.php">&larr; Kembali</a>
-    <h2>Edit Kategori</h2>
+<?php
+$pageTitle = 'Edit Kategori';
+$activeMenu = 'kategori';
+require __DIR__ . '/../../includes/header.php';
+?>
+<main class="main-content" id="main-content">
+    <header class="page-header">
+        <div class="page-heading">
+            <p class="eyebrow">Koleksi perpustakaan</p>
+            <div class="page-title-row">
+                <h1>Edit Kategori</h1>
+            </div>
+            <p class="page-description">Perbarui nama kategori untuk menjaga pengelompokan koleksi tetap akurat.</p>
+        </div>
+    </header>
 
     <?php if ($error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+        <div class="category-alert category-alert--error" role="alert">
+            <strong>Perubahan belum disimpan</strong>
+            <span><?= htmlspecialchars($error) ?></span>
+        </div>
     <?php endif; ?>
 
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <input type="text" name="nama_kategori" value="<?= htmlspecialchars($data['nama_kategori']) ?>" required>
-        <button type="submit" name="update">Simpan Perubahan</button>
-    </form>
-</body>
-</html>
+    <section class="category-panel category-edit-panel" aria-labelledby="edit-category-title">
+        <div class="section-heading">
+            <h2 id="edit-category-title">Informasi kategori</h2>
+            <p>Ubah nama kategori di bawah ini.</p>
+        </div>
+        <form class="category-form category-form--edit" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            <div class="category-field">
+                <label for="nama-kategori">Nama kategori</label>
+                <input id="nama-kategori" type="text" name="nama_kategori" value="<?= htmlspecialchars($data['nama_kategori']) ?>" required>
+            </div>
+            <div class="category-form-actions">
+                <a class="category-button category-button--secondary" href="index.php">Kembali ke kategori</a>
+                <button class="category-button category-button--primary" type="submit" name="update">Simpan perubahan</button>
+            </div>
+        </form>
+    </section>
+</main>
+<?php require __DIR__ . '/../../includes/footer.php'; ?>
+

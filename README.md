@@ -24,7 +24,7 @@ Bibliotech adalah sistem manajemen perpustakaan berbasis web dengan 3 role pengg
 ### Keamanan
 
 - Prepared statements (`mysqli`) digunakan untuk query yang menerima input pengguna guna mengurangi risiko SQL injection
-- CSRF token di semua form yang mengubah data
+- CSRF token pada form state-changing yang sudah diterapkan
 - Password di-hash, tidak pernah disimpan sebagai teks biasa
 - Validasi role di setiap halaman (bukan hanya status login)
 - Validasi input pada tahun terbit dan durasi peminjaman
@@ -60,6 +60,7 @@ PHP native, MySQL (InnoDB, utf8mb4), HTML, dan CSS tanpa framework — dikerjaka
 - ✅ Validasi tahun terbit
 - ✅ Validasi durasi peminjaman 1–30 hari
 - ✅ Perhitungan keterlambatan secara dinamis
+- ✅ Status peminjaman aktif ditentukan secara dinamis dari tanggal pengembalian
 - ✅ Peningkatan validasi dan keamanan form
 
 #### v1.5B — UI/UX
@@ -67,14 +68,17 @@ PHP native, MySQL (InnoDB, utf8mb4), HTML, dan CSS tanpa framework — dikerjaka
 - ✅ Design system dan shared layout
 - ✅ Responsive sidebar/navigation
 - ✅ Dashboard UI
-- 🚧 Kategori CRUD UI
-- ⬜ Buku & Eksemplar UI
-- ⬜ User UI
-- ⬜ Peminjaman UI
-- ⬜ Laporan UI
-- ⬜ Login UI
+- ✅ Kategori CRUD UI
+- ✅ Buku CRUD UI
+- ✅ Eksemplar CRUD UI dengan status badge
+- ✅ Login UI
+- ✅ Responsive layout dasar serta komponen empty state, alert, form, tombol, dan tabel
+- 🚧 User Management UI
+- 🚧 Peminjaman/Pengembalian UI
+- 🚧 Laporan UI
+- 🚧 Polish responsif dan accessibility final
 
-UI Bibliotech menggunakan desain **modern academic/library** dengan palet warm neutral, forest green, dan teal. Dibangun menggunakan CSS sendiri tanpa Bootstrap, Tailwind, atau framework UI.
+UI Bibliotech menggunakan design system dan CSS custom tanpa Bootstrap, Tailwind, atau framework CSS. Pengerjaan UI v1.5B masih berlangsung untuk halaman yang belum didesain ulang.
 
 ### Instalasi
 
@@ -104,7 +108,7 @@ Bibliotech is a web-based library management system with 3 user roles (Admin, St
 ### Security
 
 - Prepared statements (`mysqli`) are used for queries that accept user input to reduce SQL injection risk
-- CSRF tokens on state-changing forms
+- CSRF tokens on implemented state-changing forms
 - Passwords are hashed and never stored in plain text
 - Role validation on protected pages
 - Input validation for publication year and loan duration
@@ -140,6 +144,7 @@ Native PHP, MySQL (InnoDB, utf8mb4), HTML, and CSS without a framework — built
 - ✅ Publication year validation
 - ✅ 1–30 day loan duration validation
 - ✅ Dynamic overdue calculation
+- ✅ Active loan status is determined dynamically from the return date
 - ✅ Improved form validation and security
 
 #### v1.5B — UI/UX
@@ -147,14 +152,17 @@ Native PHP, MySQL (InnoDB, utf8mb4), HTML, and CSS without a framework — built
 - ✅ Design system and shared layout
 - ✅ Responsive sidebar/navigation
 - ✅ Dashboard UI
-- 🚧 Category CRUD UI
-- ⬜ Book & Copy UI
-- ⬜ User UI
-- ⬜ Borrowing UI
-- ⬜ Reports UI
-- ⬜ Login UI
+- ✅ Category CRUD UI
+- ✅ Book CRUD UI
+- ✅ Copy CRUD UI with status badges
+- ✅ Login UI
+- ✅ Basic responsive layout and reusable empty state, alert, form, button, and table components
+- 🚧 User Management UI
+- 🚧 Borrowing/Return UI
+- 🚧 Reports UI
+- 🚧 Final responsive and accessibility polish
 
-Bibliotech's interface follows a **modern academic/library** design direction using warm neutrals, forest green, and teal. The UI is built with custom CSS without Bootstrap, Tailwind, or other UI frameworks.
+Bibliotech uses its own design system and custom CSS without Bootstrap, Tailwind, or a CSS framework. The v1.5B UI work continues for pages that have not yet been redesigned.
 
 ### Installation
 
@@ -184,7 +192,7 @@ Bibliotech ist ein webbasiertes Bibliotheksverwaltungssystem mit drei Benutzerro
 ### Sicherheit
 
 - Prepared Statements (`mysqli`) werden für Abfragen mit Benutzereingaben verwendet, um das Risiko von SQL-Injection zu reduzieren
-- CSRF-Token bei datenverändernden Formularen
+- CSRF-Token bei bereits implementierten datenverändernden Formularen
 - Passwörter werden gehasht und niemals im Klartext gespeichert
 - Rollenprüfung auf geschützten Seiten
 - Eingabevalidierung für Erscheinungsjahr und Ausleihdauer
@@ -220,6 +228,7 @@ Natives PHP, MySQL (InnoDB, utf8mb4), HTML und CSS ohne Framework — manuell en
 - ✅ Validierung des Erscheinungsjahres
 - ✅ Validierung der Ausleihdauer von 1–30 Tagen
 - ✅ Dynamische Berechnung überfälliger Ausleihen
+- ✅ Der Status aktiver Ausleihen wird dynamisch anhand des Rückgabedatums bestimmt
 - ✅ Verbesserte Formularvalidierung und Sicherheit
 
 #### v1.5B — UI/UX
@@ -227,14 +236,17 @@ Natives PHP, MySQL (InnoDB, utf8mb4), HTML und CSS ohne Framework — manuell en
 - ✅ Design-System und gemeinsames Layout
 - ✅ Responsive Sidebar/Navigation
 - ✅ Dashboard-UI
-- 🚧 Kategorien-CRUD-UI
-- ⬜ Bücher- & Exemplare-UI
-- ⬜ Benutzer-UI
-- ⬜ Ausleih-UI
-- ⬜ Berichte-UI
-- ⬜ Login-UI
+- ✅ Kategorien-CRUD-UI
+- ✅ Bücher-CRUD-UI
+- ✅ Exemplare-CRUD-UI mit Status-Badges
+- ✅ Login-UI
+- ✅ Responsives Grundlayout sowie wiederverwendbare Komponenten für leere Zustände, Meldungen, Formulare, Schaltflächen und Tabellen
+- 🚧 Benutzerverwaltung-UI
+- 🚧 Ausleihe/Rückgabe-UI
+- 🚧 Berichte-UI
+- 🚧 Abschließende Optimierung für Responsivität und Barrierefreiheit
 
-Die Benutzeroberfläche von Bibliotech folgt einem **modernen akademischen Bibliotheksdesign** mit warmen neutralen Farben, Waldgrün und Petrol. Die Oberfläche wird mit eigenem CSS ohne Bootstrap, Tailwind oder andere UI-Frameworks entwickelt.
+Bibliotech verwendet ein eigenes Design-System und eigenes CSS ohne Bootstrap, Tailwind oder ein CSS-Framework. Die v1.5B-Oberfläche wird für noch nicht überarbeitete Seiten weiterentwickelt.
 
 ### Installation
 

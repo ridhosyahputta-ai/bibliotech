@@ -31,21 +31,51 @@ if (isset($_POST['login'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html>
-<head><title>Login - Bibliotech</title></head>
-<body>
-    <h2>Login Bibliotech</h2>
-    <?php if ($error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
-    <?php endif; ?>
-    <form method="POST">
-        <label>Username</label><br>
-        <input type="text" name="username" required><br><br>
-        <label>Password</label><br>
-        <input type="password" name="password" required><br><br>
-        <button type="submit" name="login">Login</button>
-    </form>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Bibliotech</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="auth-panel" aria-labelledby="auth-title">
+            <div class="auth-brand" aria-label="Bibliotech, Perpustakaan">
+                <span class="auth-brand-mark" aria-hidden="true">B</span>
+                <span class="auth-brand-copy">
+                    <span class="auth-brand-name">Bibliotech</span>
+                    <span class="auth-brand-caption">Perpustakaan</span>
+                </span>
+            </div>
+
+            <header class="auth-heading">
+                <h1 id="auth-title">Masuk ke Bibliotech</h1>
+                <p>Gunakan akun perpustakaan Anda untuk melanjutkan.</p>
+            </header>
+
+            <?php if ($error): ?>
+                <div class="auth-error" role="alert">
+                    <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endif; ?>
+
+            <form class="auth-form" method="POST">
+                <div class="auth-field">
+                    <label for="username">Username</label>
+                    <input id="username" type="text" name="username" autocomplete="username" required>
+                </div>
+                <div class="auth-field">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" name="password" autocomplete="current-password" required>
+                </div>
+                <button class="auth-submit" type="submit" name="login">Masuk</button>
+            </form>
+        </section>
+
+        <footer class="auth-footer">Portal internal perpustakaan</footer>
+    </main>
 </body>
 </html>
+

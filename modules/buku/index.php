@@ -94,75 +94,130 @@ $buku_result = mysqli_query($koneksi, "
     ORDER BY buku.judul ASC
 ");
 ?>
-<!DOCTYPE html>
-<html>
-<head><title>Kelola Buku - Bibliotech</title></head>
-<body>
-    <a href="../../index.php">&larr; Dashboard</a>
-    <h2>Kelola Buku</h2>
+<?php
+$pageTitle = 'Buku';
+$activeMenu = 'buku';
+require __DIR__ . '/../../includes/header.php';
+?>
+<main class="main-content" id="main-content">
+    <header class="page-header">
+        <div class="page-heading">
+            <p class="eyebrow">Koleksi perpustakaan</p>
+            <div class="page-title-row">
+                <h1>Kelola Buku</h1>
+            </div>
+            <p class="page-description">Kelola informasi bibliografi dan akses eksemplar untuk setiap judul buku.</p>
+        </div>
+    </header>
 
     <?php if ($error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+        <div class="category-alert category-alert--error" role="alert">
+            <strong>Terjadi masalah</strong>
+            <span><?= htmlspecialchars($error) ?></span>
+        </div>
     <?php endif; ?>
     <?php if ($sukses): ?>
-        <p style="color:green;"><?= htmlspecialchars($sukses) ?></p>
+        <div class="category-alert category-alert--success" role="status">
+            <strong>Berhasil</strong>
+            <span><?= htmlspecialchars($sukses) ?></span>
+        </div>
     <?php endif; ?>
 
-    <h3>Tambah Buku</h3>
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <label>ISBN</label><br>
-        <input type="text" name="isbn"><br><br>
-        <label>Judul</label><br>
-        <input type="text" name="judul" required><br><br>
-        <label>Penulis</label><br>
-        <input type="text" name="penulis" required><br><br>
-        <label>Penerbit</label><br>
-        <input type="text" name="penerbit"><br><br>
-        <label>Tahun Terbit</label><br>
-        <input type="number" name="tahun_terbit" min="1000" max="<?= date('Y') ?>"><br><br>
-        <label>Kategori</label><br>
-        <select name="kategori_id">
-            <option value="">-- Tanpa Kategori --</option>
-            <?php while ($kat = mysqli_fetch_assoc($kategori_result)): ?>
-                <option value="<?= $kat['id_kategori'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
-            <?php endwhile; ?>
-        </select><br><br>
-        <label>Deskripsi</label><br>
-        <textarea name="deskripsi"></textarea><br><br>
-        <button type="submit" name="tambah">Tambah Buku</button>
-    </form>
+    <section class="category-panel book-form-panel" aria-labelledby="add-book-title">
+        <div class="section-heading">
+            <h2 id="add-book-title">Tambah Buku</h2>
+            <p>Masukkan informasi utama untuk menambahkan judul ke koleksi.</p>
+        </div>
+        <form class="category-form category-form--book" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-    <h3>Daftar Buku</h3>
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>No</th>
-            <th>Judul</th>
-            <th>Penulis</th>
-            <th>Tahun</th>
-            <th>Kategori</th>
-            <th>Aksi</th>
-        </tr>
-        <?php $no = 1; while ($row = mysqli_fetch_assoc($buku_result)): ?>
-        <tr>
-            <td><?= $no++ ?></td>
-            <td><?= htmlspecialchars($row['judul']) ?></td>
-            <td><?= htmlspecialchars($row['penulis']) ?></td>
-            <td><?= htmlspecialchars($row['tahun_terbit'] ?? '-') ?></td>
-            <td><?= htmlspecialchars($row['nama_kategori'] ?? 'Tanpa Kategori') ?></td>
-            <td>
-                <a href="edit.php?id=<?= $row['id_buku'] ?>">Edit</a>
-                |
-                <a href="../eksemplar/index.php?buku_id=<?= $row['id_buku'] ?>">Kelola Eksemplar</a>
-                |
-                <form method="POST" action="delete.php" style="display:inline;" onsubmit="return confirm('Yakin hapus buku ini? Semua eksemplarnya juga akan terhapus.');">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    <input type="hidden" name="id_buku" value="<?= $row['id_buku'] ?>">
-                    <button type="submit">Hapus</button>
-                </form>
-            </td>
-        </tr>
-        <?php endwhile; ?>
-    </table>
-</body>
-</html>
+            <div class="category-field">
+                <label for="isbn">ISBN</label>
+                <input id="isbn" type="text" name="isbn">
+            </div>
+            <div class="category-field">
+                <label for="judul">Judul</label>
+                <input id="judul" type="text" name="judul" required>
+            </div>
+            <div class="category-field">
+                <label for="penulis">Penulis</label>
+                <input id="penulis" type="text" name="penulis" required>
+            </div>
+            <div class="category-field">
+                <label for="penerbit">Penerbit</label>
+                <input id="penerbit" type="text" name="penerbit">
+            </div>
+            <div class="category-field">
+                <label for="tahun-terbit">Tahun Terbit</label>
+                <input id="tahun-terbit" type="number" name="tahun_terbit" min="1000" max="<?= date('Y') ?>">
+            </div>
+            <div class="category-field">
+                <label for="kategori-id">Kategori</label>
+                <select class="book-field-control" id="kategori-id" name="kategori_id">
+                    <option value="">-- Tanpa Kategori --</option>
+                    <?php while ($kat = mysqli_fetch_assoc($kategori_result)): ?>
+                        <option value="<?= $kat['id_kategori'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            <div class="category-field book-field--wide">
+                <label for="deskripsi">Deskripsi</label>
+                <textarea class="book-field-control" id="deskripsi" name="deskripsi" rows="4"></textarea>
+            </div>
+            <button class="category-button category-button--primary book-form-submit" type="submit" name="tambah">Tambah Buku</button>
+        </form>
+    </section>
+
+    <section class="category-panel book-list-panel" aria-labelledby="book-list-title">
+        <div class="section-heading">
+            <h2 id="book-list-title">Daftar Buku</h2>
+            <p>Daftar judul buku dan kategori yang terkait.</p>
+        </div>
+
+        <?php if (mysqli_num_rows($buku_result) === 0): ?>
+            <div class="category-empty-state">
+                <h3>Belum ada buku</h3>
+                <p>Buku yang ditambahkan akan muncul di sini.</p>
+            </div>
+        <?php else: ?>
+            <div class="category-table-scroll" tabindex="0" role="region" aria-label="Daftar buku, dapat digulir secara horizontal">
+                <table class="category-table book-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">No.</th>
+                            <th scope="col">Judul</th>
+                            <th scope="col">Penulis</th>
+                            <th scope="col">Tahun</th>
+                            <th scope="col">Kategori</th>
+                            <th scope="col">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $no = 1; while ($row = mysqli_fetch_assoc($buku_result)): ?>
+                        <tr>
+                            <td class="category-number"><?= $no++ ?></td>
+                            <td class="category-name book-title"><?= htmlspecialchars($row['judul']) ?></td>
+                            <td><?= htmlspecialchars($row['penulis']) ?></td>
+                            <td><?= htmlspecialchars($row['tahun_terbit'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($row['nama_kategori'] ?? 'Tanpa Kategori') ?></td>
+                            <td>
+                                <div class="category-actions book-actions">
+                                    <a class="category-button category-button--primary book-related-action" href="../eksemplar/index.php?buku_id=<?= $row['id_buku'] ?>">Kelola Eksemplar</a>
+                                    <a class="category-button category-button--secondary" href="edit.php?id=<?= $row['id_buku'] ?>">Edit</a>
+                                    <form class="category-delete-form" method="POST" action="delete.php" onsubmit="return confirm('Yakin hapus buku ini? Semua eksemplarnya juga akan terhapus.');">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="id_buku" value="<?= $row['id_buku'] ?>">
+                                        <button class="category-button category-button--danger" type="submit">Hapus</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </section>
+</main>
+<?php require __DIR__ . '/../../includes/footer.php'; ?>
+

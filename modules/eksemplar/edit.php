@@ -95,33 +95,59 @@ if (!$data) {
     exit();
 }
 ?>
-<!DOCTYPE html>
-<html>
-<head><title>Edit Eksemplar - Bibliotech</title></head>
-<body>
-    <a href="index.php?buku_id=<?= $buku_id ?>">&larr; Kembali</a>
-    <h2>Edit Eksemplar</h2>
+<?php
+$pageTitle = 'Edit Eksemplar';
+$activeMenu = 'buku';
+require __DIR__ . '/../../includes/header.php';
+?>
+<main class="main-content" id="main-content">
+    <header class="page-header">
+        <div class="page-heading">
+            <p class="eyebrow">Koleksi perpustakaan</p>
+            <div class="page-title-row">
+                <h1>Edit Eksemplar</h1>
+            </div>
+            <p class="page-description">Konteks buku <strong>#<?= $buku_id ?></strong> · Eksemplar <strong><?= htmlspecialchars($data['kode_eksemplar']) ?></strong></p>
+        </div>
+    </header>
 
     <?php if ($error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+        <div class="category-alert category-alert--error" role="alert">
+            <strong>Perubahan belum disimpan</strong>
+            <span><?= htmlspecialchars($error) ?></span>
+        </div>
     <?php endif; ?>
 
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <label>Kode Eksemplar</label><br>
-        <input type="text" name="kode_eksemplar" value="<?= htmlspecialchars($data['kode_eksemplar']) ?>" required><br><br>
-        <label>Status</label><br>
-        <select name="status">
-            <?php
-            $pilihan_status = ['tersedia', 'dipinjam', 'rusak', 'hilang'];
-            foreach ($pilihan_status as $opsi):
-            ?>
-                <option value="<?= $opsi ?>" <?= $data['status'] === $opsi ? 'selected' : '' ?>>
-                    <?= ucfirst($opsi) ?>
-                </option>
-            <?php endforeach; ?>
-        </select><br><br>
-        <button type="submit" name="update">Simpan Perubahan</button>
-    </form>
-</body>
-</html>
+    <section class="category-panel exemplar-edit-panel" aria-labelledby="edit-exemplar-title">
+        <div class="section-heading">
+            <h2 id="edit-exemplar-title">Informasi Eksemplar</h2>
+            <p>Perbarui kode atau status sesuai kondisi eksemplar.</p>
+        </div>
+        <form class="category-form category-form--edit" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            <div class="category-field">
+                <label for="kode-eksemplar">Kode eksemplar</label>
+                <input id="kode-eksemplar" type="text" name="kode_eksemplar" value="<?= htmlspecialchars($data['kode_eksemplar']) ?>" required>
+            </div>
+            <div class="category-field exemplar-status-field">
+                <label for="status-eksemplar">Status</label>
+                <select class="book-field-control" id="status-eksemplar" name="status">
+                    <?php
+                    $pilihan_status = ['tersedia', 'dipinjam', 'rusak', 'hilang'];
+                    foreach ($pilihan_status as $opsi):
+                    ?>
+                        <option value="<?= $opsi ?>" <?= $data['status'] === $opsi ? 'selected' : '' ?>>
+                            <?= ucfirst($opsi) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="category-form-actions exemplar-form-actions">
+                <a class="category-button category-button--secondary" href="index.php?buku_id=<?= $buku_id ?>">Kembali ke Kelola Eksemplar</a>
+                <button class="category-button category-button--primary" type="submit" name="update">Simpan Perubahan</button>
+            </div>
+        </form>
+    </section>
+</main>
+<?php require __DIR__ . '/../../includes/footer.php'; ?>
+

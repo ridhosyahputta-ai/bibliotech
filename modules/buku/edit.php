@@ -90,41 +90,78 @@ if (!$data) {
 // Ambil semua kategori buat dropdown
 $kategori_result = mysqli_query($koneksi, "SELECT id_kategori, nama_kategori FROM kategori ORDER BY nama_kategori ASC");
 ?>
-<!DOCTYPE html>
-<html>
-<head><title>Edit Buku - Bibliotech</title></head>
-<body>
-    <a href="index.php">&larr; Kembali</a>
-    <h2>Edit Buku</h2>
+<?php
+$pageTitle = 'Edit Buku';
+$activeMenu = 'buku';
+require __DIR__ . '/../../includes/header.php';
+?>
+<main class="main-content" id="main-content">
+    <header class="page-header">
+        <div class="page-heading">
+            <p class="eyebrow">Koleksi perpustakaan</p>
+            <div class="page-title-row">
+                <h1>Edit Buku</h1>
+            </div>
+            <p class="page-description">Perbarui informasi bibliografi buku dalam koleksi.</p>
+        </div>
+    </header>
 
     <?php if ($error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+        <div class="category-alert category-alert--error" role="alert">
+            <strong>Perubahan belum disimpan</strong>
+            <span><?= htmlspecialchars($error) ?></span>
+        </div>
     <?php endif; ?>
 
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <label>ISBN</label><br>
-        <input type="text" name="isbn" value="<?= htmlspecialchars($data['isbn'] ?? '') ?>"><br><br>
-        <label>Judul</label><br>
-        <input type="text" name="judul" value="<?= htmlspecialchars($data['judul']) ?>" required><br><br>
-        <label>Penulis</label><br>
-        <input type="text" name="penulis" value="<?= htmlspecialchars($data['penulis']) ?>" required><br><br>
-        <label>Penerbit</label><br>
-        <input type="text" name="penerbit" value="<?= htmlspecialchars($data['penerbit'] ?? '') ?>"><br><br>
-        <label>Tahun Terbit</label><br>
-        <input type="number" name="tahun_terbit" min="1000" max="<?= date('Y') ?>" value="<?= htmlspecialchars($data['tahun_terbit'] ?? '') ?>"><br><br>
-        <label>Kategori</label><br>
-        <select name="kategori_id">
-            <option value="">-- Tanpa Kategori --</option>
-            <?php while ($kat = mysqli_fetch_assoc($kategori_result)): ?>
-                <option value="<?= $kat['id_kategori'] ?>" <?= $data['kategori_id'] == $kat['id_kategori'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($kat['nama_kategori']) ?>
-                </option>
-            <?php endwhile; ?>
-        </select><br><br>
-        <label>Deskripsi</label><br>
-        <textarea name="deskripsi"><?= htmlspecialchars($data['deskripsi'] ?? '') ?></textarea><br><br>
-        <button type="submit" name="update">Simpan Perubahan</button>
-    </form>
-</body>
-</html>
+    <section class="category-panel book-form-panel" aria-labelledby="edit-book-title">
+        <div class="section-heading">
+            <h2 id="edit-book-title">Informasi Buku</h2>
+            <p>Periksa dan perbarui field yang diperlukan.</p>
+        </div>
+        <form class="category-form category-form--book" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+
+            <div class="category-field">
+                <label for="isbn">ISBN</label>
+                <input id="isbn" type="text" name="isbn" value="<?= htmlspecialchars($data['isbn'] ?? '') ?>">
+            </div>
+            <div class="category-field">
+                <label for="judul">Judul</label>
+                <input id="judul" type="text" name="judul" value="<?= htmlspecialchars($data['judul']) ?>" required>
+            </div>
+            <div class="category-field">
+                <label for="penulis">Penulis</label>
+                <input id="penulis" type="text" name="penulis" value="<?= htmlspecialchars($data['penulis']) ?>" required>
+            </div>
+            <div class="category-field">
+                <label for="penerbit">Penerbit</label>
+                <input id="penerbit" type="text" name="penerbit" value="<?= htmlspecialchars($data['penerbit'] ?? '') ?>">
+            </div>
+            <div class="category-field">
+                <label for="tahun-terbit">Tahun Terbit</label>
+                <input id="tahun-terbit" type="number" name="tahun_terbit" min="1000" max="<?= date('Y') ?>" value="<?= htmlspecialchars($data['tahun_terbit'] ?? '') ?>">
+            </div>
+            <div class="category-field">
+                <label for="kategori-id">Kategori</label>
+                <select class="book-field-control" id="kategori-id" name="kategori_id">
+                    <option value="">-- Tanpa Kategori --</option>
+                    <?php while ($kat = mysqli_fetch_assoc($kategori_result)): ?>
+                        <option value="<?= $kat['id_kategori'] ?>" <?= $data['kategori_id'] == $kat['id_kategori'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($kat['nama_kategori']) ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            <div class="category-field book-field--wide">
+                <label for="deskripsi">Deskripsi</label>
+                <textarea class="book-field-control" id="deskripsi" name="deskripsi" rows="4"><?= htmlspecialchars($data['deskripsi'] ?? '') ?></textarea>
+            </div>
+            <div class="category-form-actions book-form-actions">
+                <a class="category-button category-button--secondary" href="index.php">Kembali ke daftar buku</a>
+                <button class="category-button category-button--primary" type="submit" name="update">Simpan Perubahan</button>
+            </div>
+        </form>
+    </section>
+</main>
+<?php require __DIR__ . '/../../includes/footer.php'; ?>
+
