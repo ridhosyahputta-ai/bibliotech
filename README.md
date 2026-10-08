@@ -73,12 +73,26 @@ PHP native, MySQL (InnoDB, utf8mb4), HTML, dan CSS tanpa framework — dikerjaka
 - ✅ Eksemplar CRUD UI dengan status badge
 - ✅ Login UI
 - ✅ Responsive layout dasar serta komponen empty state, alert, form, tombol, dan tabel
-- 🚧 User Management UI
+- ✅ User Management UI
 - 🚧 Peminjaman/Pengembalian UI
 - 🚧 Laporan UI
 - 🚧 Polish responsif dan accessibility final
 
 UI Bibliotech menggunakan design system dan CSS custom tanpa Bootstrap, Tailwind, atau framework CSS. Pengerjaan UI v1.5B masih berlangsung untuk halaman yang belum didesain ulang.
+
+##### User Management UI
+
+Redesign User Management UI sudah di-commit dan di-push ke GitHub: `7f95a8e` — `Bibliotech v1.5B: redesign User Management UI`.
+
+- Menggunakan layout bersama Bibliotech, form Tambah Pengguna responsif, dan daftar pengguna dengan badge role serta status.
+- Pesan validasi dan empty state mengikuti komponen UI bersama; input non-password dipertahankan ketika validasi gagal.
+- Akses tetap khusus admin; CSRF, password hashing, dan logika penyimpanan tetap dipertahankan. Fitur Edit, Hapus, Nonaktifkan, dan Reset Password belum tersedia.
+
+##### Status pengujian User Management
+
+- ✅ PHP syntax check berhasil berdasarkan laporan implementasi.
+- ✅ Berdasarkan konfirmasi pengujian browser, penambahan akun berhasil; pesan sukses dan akun baru tampil dalam daftar.
+- ⏳ Pengujian akses role lain, validasi gagal, dan tampilan mobile belum dikonfirmasi. Pengujian belum seluruhnya selesai.
 
 ### Instalasi
 
@@ -157,12 +171,26 @@ Native PHP, MySQL (InnoDB, utf8mb4), HTML, and CSS without a framework — built
 - ✅ Copy CRUD UI with status badges
 - ✅ Login UI
 - ✅ Basic responsive layout and reusable empty state, alert, form, button, and table components
-- 🚧 User Management UI
+- ✅ User Management UI
 - 🚧 Borrowing/Return UI
 - 🚧 Reports UI
 - 🚧 Final responsive and accessibility polish
 
 Bibliotech uses its own design system and custom CSS without Bootstrap, Tailwind, or a CSS framework. The v1.5B UI work continues for pages that have not yet been redesigned.
+
+##### User Management UI
+
+The User Management UI redesign has been committed and pushed to GitHub: `7f95a8e` — `Bibliotech v1.5B: redesign User Management UI`.
+
+- Uses Bibliotech's shared layout, a responsive Add User form, and a user list with role and status badges.
+- Validation messages and the empty state follow shared UI components; non-password input is retained after validation fails.
+- Access remains restricted to admins; CSRF, password hashing, and account storage logic are preserved. Edit, Delete, Deactivate, and Reset Password features are not available.
+
+##### User Management testing status
+
+- ✅ PHP syntax check passed according to the implementation report.
+- ✅ Confirmed browser testing shows that account creation succeeded; the success message and new account appeared in the list.
+- ⏳ Testing of access for other roles, failed validation, and the mobile layout has not been confirmed. Testing is not yet complete.
 
 ### Installation
 
@@ -241,12 +269,26 @@ Natives PHP, MySQL (InnoDB, utf8mb4), HTML und CSS ohne Framework — manuell en
 - ✅ Exemplare-CRUD-UI mit Status-Badges
 - ✅ Login-UI
 - ✅ Responsives Grundlayout sowie wiederverwendbare Komponenten für leere Zustände, Meldungen, Formulare, Schaltflächen und Tabellen
-- 🚧 Benutzerverwaltung-UI
+- ✅ Benutzerverwaltung-UI
 - 🚧 Ausleihe/Rückgabe-UI
 - 🚧 Berichte-UI
 - 🚧 Abschließende Optimierung für Responsivität und Barrierefreiheit
 
 Bibliotech verwendet ein eigenes Design-System und eigenes CSS ohne Bootstrap, Tailwind oder ein CSS-Framework. Die v1.5B-Oberfläche wird für noch nicht überarbeitete Seiten weiterentwickelt.
+
+##### Benutzerverwaltung-UI
+
+Die Überarbeitung der Benutzerverwaltung-UI wurde committet und zu GitHub gepusht: `7f95a8e` — `Bibliotech v1.5B: redesign User Management UI`.
+
+- Verwendet das gemeinsame Bibliotech-Layout, ein responsives Formular zum Anlegen von Benutzern und eine Benutzerliste mit Rollen- und Status-Badges.
+- Validierungsmeldungen und der leere Zustand verwenden gemeinsame UI-Komponenten; Eingaben außer dem Passwort bleiben bei fehlgeschlagener Validierung erhalten.
+- Der Zugriff bleibt auf Admins beschränkt; CSRF, Passwort-Hashing und die Speicherlogik bleiben erhalten. Bearbeiten, Löschen, Deaktivieren und Zurücksetzen des Passworts sind nicht verfügbar.
+
+##### Teststatus der Benutzerverwaltung
+
+- ✅ Die PHP-Syntaxprüfung war laut Implementierungsbericht erfolgreich.
+- ✅ Der bestätigte Browsertest zeigt, dass das Anlegen eines Kontos erfolgreich war; die Erfolgsmeldung und das neue Konto erschienen in der Liste.
+- ⏳ Tests des Zugriffs anderer Rollen, fehlgeschlagener Validierung und der mobilen Darstellung wurden noch nicht bestätigt. Die Tests sind noch nicht vollständig abgeschlossen.
 
 ### Installation
 
