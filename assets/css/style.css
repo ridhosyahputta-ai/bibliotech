@@ -920,3 +920,62 @@ h1 {
     }
 }
 
+
+
+/* User management: scoped additions to shared CRUD components */
+.user-management .user-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-4);
+}
+
+.user-management .user-form .category-field {
+    width: 100%;
+    min-width: 0;
+}
+
+.user-management .user-form-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 14px;
+}
+
+.user-management .user-form-submit {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+
+.user-management .user-table {
+    min-width: 680px;
+}
+
+.user-management .user-name {
+    overflow-wrap: anywhere;
+}
+
+.user-management .user-role-badge,
+.user-management .user-status-badge {
+    border-color: var(--color-border);
+    background: var(--color-background);
+    color: var(--color-muted);
+}
+
+.user-management .user-role-badge {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.user-management .user-status-badge--active {
+    border-color: #C9DDCE;
+    background: #EFF6F0;
+    color: var(--color-success);
+}
+
+@media (max-width: 720px) {
+    .user-management .user-form {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--space-3);
+    }
+}

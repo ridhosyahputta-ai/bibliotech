@@ -55,56 +55,108 @@ if (isset($_POST['tambah'])) {
 // Ambil semua user
 $result = mysqli_query($koneksi, "SELECT id_user, username, nama, role, status FROM users ORDER BY role ASC, nama ASC");
 ?>
-<!DOCTYPE html>
-<html>
-<head><title>Kelola User - Bibliotech</title></head>
-<body>
-    <a href="../../index.php">&larr; Dashboard</a>
-    <h2>Kelola User</h2>
+<?php
+$pageTitle = 'Kelola Pengguna';
+$activeMenu = 'user';
+// Nilai tampilan saja: pertahankan input non-password ketika validasi gagal.
+$userFormUsername = $error && is_string($_POST['username'] ?? null) ? $_POST['username'] : '';
+$userFormNama = $error && is_string($_POST['nama'] ?? null) ? $_POST['nama'] : '';
+$userFormRole = $error && is_string($_POST['role'] ?? null) && in_array($_POST['role'], ['admin', 'petugas', 'anggota'], true) ? $_POST['role'] : 'anggota';
+require __DIR__ . '/../../includes/header.php';
+?>
+<main class="main-content user-management" id="main-content">
+    <header class="page-header">
+        <div class="page-heading">
+            <p class="eyebrow">Administrasi perpustakaan</p>
+            <div class="page-title-row">
+                <h1>Kelola Pengguna</h1>
+            </div>
+            <p class="page-description">Tambahkan akun perpustakaan dan lihat role serta status pengguna yang terdaftar.</p>
+        </div>
+    </header>
 
     <?php if ($error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+        <div class="category-alert category-alert--error" role="alert">
+            <strong>Terjadi masalah</strong>
+            <span><?= htmlspecialchars($error) ?></span>
+        </div>
     <?php endif; ?>
     <?php if ($sukses): ?>
-        <p style="color:green;"><?= htmlspecialchars($sukses) ?></p>
+        <div class="category-alert category-alert--success" role="status">
+            <strong>Berhasil</strong>
+            <span><?= htmlspecialchars($sukses) ?></span>
+        </div>
     <?php endif; ?>
 
-    <h3>Tambah User</h3>
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <label>Username</label><br>
-        <input type="text" name="username" required><br><br>
-        <label>Password</label><br>
-        <input type="password" name="password" required><br><br>
-        <label>Nama</label><br>
-        <input type="text" name="nama" required><br><br>
-        <label>Role</label><br>
-        <select name="role">
-            <option value="anggota">Anggota</option>
-            <option value="petugas">Petugas</option>
-            <option value="admin">Admin</option>
-        </select><br><br>
-        <button type="submit" name="tambah">Tambah User</button>
-    </form>
+    <section class="category-panel" aria-labelledby="add-user-title">
+        <div class="section-heading">
+            <h2 id="add-user-title">Tambah Pengguna</h2>
+            <p>Masukkan identitas dan role untuk membuat akun perpustakaan.</p>
+        </div>
+        <form class="category-form user-form" method="POST" aria-describedby="user-status-note">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            <div class="category-field">
+                <label for="user-username">Username</label>
+                <input id="user-username" type="text" name="username" autocomplete="username" value="<?= htmlspecialchars($userFormUsername, ENT_QUOTES, 'UTF-8') ?>" required>
+            </div>
+            <div class="category-field">
+                <label for="user-password">Password</label>
+                <input id="user-password" type="password" name="password" autocomplete="new-password" required>
+            </div>
+            <div class="category-field">
+                <label for="user-nama">Nama</label>
+                <input id="user-nama" type="text" name="nama" autocomplete="name" value="<?= htmlspecialchars($userFormNama, ENT_QUOTES, 'UTF-8') ?>" required>
+            </div>
+            <div class="category-field">
+                <label for="user-role">Role</label>
+                <select class="book-field-control" id="user-role" name="role">
+                    <option value="anggota"<?= $userFormRole === 'anggota' ? ' selected' : '' ?>>Anggota</option>
+                    <option value="petugas"<?= $userFormRole === 'petugas' ? ' selected' : '' ?>>Petugas</option>
+                    <option value="admin"<?= $userFormRole === 'admin' ? ' selected' : '' ?>>Admin</option>
+                </select>
+            </div>
+            <p class="user-form-note" id="user-status-note">Akun baru otomatis berstatus <strong>Aktif</strong>.</p>
+            <button class="category-button category-button--primary user-form-submit" type="submit" name="tambah">Tambah Pengguna</button>
+        </form>
+    </section>
 
-    <h3>Daftar User</h3>
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>No</th>
-            <th>Username</th>
-            <th>Nama</th>
-            <th>Role</th>
-            <th>Status</th>
-        </tr>
-        <?php $no = 1; while ($row = mysqli_fetch_assoc($result)): ?>
-        <tr>
-            <td><?= $no++ ?></td>
-            <td><?= htmlspecialchars($row['username']) ?></td>
-            <td><?= htmlspecialchars($row['nama']) ?></td>
-            <td><?= htmlspecialchars($row['role']) ?></td>
-            <td><?= htmlspecialchars($row['status']) ?></td>
-        </tr>
-        <?php endwhile; ?>
-    </table>
-</body>
-</html>
+    <section class="category-panel" aria-labelledby="user-list-title">
+        <div class="section-heading">
+            <h2 id="user-list-title">Daftar Pengguna</h2>
+            <p>Akun perpustakaan beserta role dan statusnya.</p>
+        </div>
+
+        <?php if (mysqli_num_rows($result) === 0): ?>
+            <div class="category-empty-state">
+                <h3>Belum ada pengguna</h3>
+                <p>Pengguna yang ditambahkan akan muncul di sini.</p>
+            </div>
+        <?php else: ?>
+            <div class="category-table-scroll" tabindex="0" role="region" aria-label="Daftar pengguna, dapat digulir secara horizontal">
+                <table class="category-table user-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">No</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Nama</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $no = 1; while ($row = mysqli_fetch_assoc($result)): ?>
+                        <tr>
+                            <td class="category-number"><?= $no++ ?></td>
+                            <td class="category-name"><?= htmlspecialchars($row['username']) ?></td>
+                            <td class="user-name"><?= htmlspecialchars($row['nama']) ?></td>
+                            <td><span class="status-badge user-role-badge"><?= htmlspecialchars(ucfirst($row['role'])) ?></span></td>
+                            <td><span class="status-badge user-status-badge<?= $row['status'] === 'aktif' ? ' user-status-badge--active' : '' ?>"><?= htmlspecialchars(ucfirst($row['status'])) ?></span></td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </section>
+</main>
+<?php require __DIR__ . '/../../includes/footer.php'; ?>
